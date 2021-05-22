@@ -23,6 +23,10 @@ Having that into account, the back-end architecture is divided as follows:
 
 Keep in mind that to make this project more challenging and also to simulate a real case scenario, I will probably use an AZURE SQL DB to store the application data. I'm going to use SQL because it requires more data processing than NoSQL databases like MongoDB, that already store and return object collections. I'll set up the SQL Server in a way that any IP address can access it, so that if you want to test the API and application overall, you are able to do so.
 
+## Delivery Date
+
+Wednesday (26/05)
+
 ## Author
 
 Pedro Henrique Santos Sousa
