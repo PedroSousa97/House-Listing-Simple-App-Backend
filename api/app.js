@@ -2,6 +2,10 @@
 const express = require('express');
 const bodyParser = require('body-parser')
 
+//Set .env variable file
+const dotenv = require("dotenv");
+dotenv.config();
+
 //import routing file
 var routes = require('./routes/routes');
 
