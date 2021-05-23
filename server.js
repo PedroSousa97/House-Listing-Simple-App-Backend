@@ -22,7 +22,7 @@ const normalizePort = val => {
 
 
 //Listening on port 3000 on localhost
-const port = normalizePort(process.env.PORT || "3000");
+const port = normalizePort(process.env.PORT || "3030");
 app.set("port", port);
 
 const server = http.createServer(app);
