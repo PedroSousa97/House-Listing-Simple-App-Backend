@@ -25,6 +25,12 @@ Keep in mind that to make this project more challenging and also to simulate a r
 
 I'm going to use SQL because it requires more data processing than NoSQL databases like MongoDB, that already store and return object collections.
 
+## API Endpoints Considerations
+
+Having a UI that sends data to the API, is a good way to control the request parameters and to make sure they fit the expected values, however, it is a good practice to always validate the received data in the back-end also. Having that in mind, my API was designed and built in a way that all the request parameters are checked and validated before the data is fetched or manipulated, making sure the API only responds if the request parameters or request body are the expected ones.
+
+Regarding the GET endpoint that lists all properties, the filtering was built having into account the way Uniplaces actually filters their properties, meaning that more than one filter can be sent, for example, if an individual wants to filter 2,3 and 4 bedroom properties, the API is prepared to do so.
+
 ## Delivery Date
 
 Wednesday (26/05)

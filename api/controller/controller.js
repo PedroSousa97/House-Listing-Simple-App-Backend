@@ -176,7 +176,11 @@ exports.getProperties = function(req,res){
                     conn.end();
                     return res.status(200).json({properties:this.properties}) //Here the response is already sorted in the DB SQL Query, no need to srot the response body array
                 }   
-                    
+                    if(!Array.isArray(req.query.filters)){ //Check if the request query parameters were passed as an array otherwise send bad request error message
+                        conn.end();
+                        return res.status(400).json({message:"Filters should be in array format, use ?filters[]=x"})
+                    }
+
                     //if the get requests has request queries parameters, then cycle through all filters and get properties with x bedrooms (accepts more than one filter)
                     Promise.all(req.query.filters.map(filter => {   //once again map was used, in order to use the promise functionality, for each and for loops won't work
                         return new Promise(resolve => {
@@ -186,11 +190,6 @@ exports.getProperties = function(req,res){
                             }
                             Promise.all(this.properties.map(property => { 
                                 return new Promise(resolve => { //For each filter value, map the properties array and push the properties with filtered number of bedrooms
-                                    if(parseInt(filter)==5){    //To simulate and use the same logic as Uniplaces webapp, this rule is for +4 bedroom properties
-                                        if(countBedrooms(property.units,"bedroom") > parseInt(filter)){
-                                            this.filteredProperties.push(property)  //get 5+ bedrooms houses and then get the 5 bedrooms houses on the next if 
-                                        }
-                                    }
                                     if(countBedrooms(property.units,"bedroom") == parseInt(filter)){
                                         this.filteredProperties.push(property)  //get all the properties that match the filtered number of bedrooms
                                     } 
