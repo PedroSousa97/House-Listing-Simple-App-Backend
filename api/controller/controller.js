@@ -6,9 +6,28 @@ const DBPASS = process.env.DBPASSWORD;
 //Set Database connection, this pool connection will be used to query the database
 const pool = mariadb.createPool({host: '127.0.0.1',port:'3306', user: 'root', database:'techchallengedb', password: DBPASS, connectionLimit: 5});
 
+//Simple function that is going to be used to filter properties by number of bedrooms
+const countBedrooms = (arr, val) => arr.reduce((a, v) => (v === val ? a + 1 : a), 0);
 
 //Add a new Property in one POST request:
 exports.createProperty = function(req,res){
+    //First check to see if request body is empty
+    if(req.body.constructor === Object && Object.keys(req.body).length === 0) {
+        return res.status(400).json({message:"Request body missing"})
+    }
+    //check if request body has the right amount of parameters
+    if(Object.keys(req.body).length != 2){
+        return res.status(400).json({message:"Wrong request body"})
+    }
+    //Check if both parameters naming are the right ones
+    if(!req.body.name || !req.body.units){
+        return res.status(400).json({message:"At least one wrong request parameter"})
+    }
+    //Check if property has at least one unit
+    if(req.body.units.length == 0){
+        return res.status(400).json({message:"Your new property should at least have one unit"})
+    }
+
     propertyName = req.body.name; //property name request parameter
     propertyUnits = req.body.units //array of units request parameter
     UnitValidator = 0;  //Validator used to check if all unit names are one of the allowed values
@@ -59,18 +78,31 @@ exports.createProperty = function(req,res){
                     conn.end();
                   })
             })
-        
       }).catch(err =>{  //Catch block to detect and catch DB connection issues
-        conn.end();
-          return res.status(500).json({
+            conn.end();
+            return res.status(500).json({
             message: "Couldn't connect to the Database!",
-          })})
+        })})
 }
 
 
 
-//delete a property functionality
+//Delete a property functionality
 exports.deleteProperty = function(req,res){
+
+    //First check to see if request body is empty
+    if(req.body.constructor === Object && Object.keys(req.body).length === 0) {
+        return res.status(400).json({message:"Request body missing"})
+    }
+    //check if request body has too many parameters
+    if(Object.keys(req.body).length > 1){
+        return res.status(400).json({message:"Wrong request body"})
+    }
+    //Check if parameter naming is the right one (name)
+    if(!req.body.name){
+        return res.status(400).json({message:"Wrong request parameter"})
+    }
+
     propertyName = req.body.name; //property name request parameter
     id = 0;
 
@@ -103,8 +135,87 @@ exports.deleteProperty = function(req,res){
                 conn.end();
             })
         }).catch(err =>{  //Catch block to detect and catch DB connection issues
-        conn.end();
-          return res.status(500).json({
+            conn.end();
+            return res.status(500).json({
             message: "Couldn't connect to the Database!",
         })})
+}
+
+
+//Get all properties
+exports.getProperties = function(req,res){
+    properties = [] //this varible will be used to hold all the properties custom objects
+    filteredProperties = [] //this varible will be used to hold all the filtered properties
+
+    pool.getConnection()
+    .then(conn => { //First get all names and ids of every property from the DB
+        conn.query("SELECT idProperties, properties.Name AS Name FROM properties ORDER BY properties.Name")
+        .then((rows) => {
+            //Once again instead of a for cycle, I'll use the map function that returns promisses. A for loop wouldn't work because the code after it would execute first
+            Promise.all(rows.map(property => {
+                return new Promise(resolve => { //I simply cycle every previously fetched property ID and get that property Units
+                    conn.query("SELECT propertyrooms.RoomName, properties.Name AS Name FROM properties,propertyrooms WHERE propertyrooms.Properties_idProperties = '"+property.idProperties+"' && properties.idProperties = '"+property.idProperties+"'")
+                    .then((rows) => {
+                        Promise.all(rows.map(Unit => {
+                            return new Promise(resolve => { //I simply map every Unit name from the request array and resolve the new unitvalidator value into an array
+                                propertyUnits = Unit.RoomName //get all property names and resolve it into a new array with the resolve function
+                                resolve(propertyUnits)
+                            })})).then(propertyUnits=>{ //After all promisses are resolved, continue code execution 
+                                resolve(this.properties.push({  //Push the new property objects to the properties array
+                                    name: rows[0].Name, //Name of the property is set using the first row of the query results, and getting the Name column value
+                                    units: propertyUnits
+                                }))
+                            })
+                    }).catch(err => {
+                        console.log(err); //in case of error, log the error just for debugging purposes
+                        conn.end();
+                    })
+            })})).then(()=>{ //After all promisses are resolved (both maps) continue code execution
+                //if no request querie is passed, meaning the user doesn't want to filter by bedroom number, then send all properties as it is
+                if(!req.query.filters){
+                    conn.end();
+                    return res.status(200).json({properties:this.properties}) //Here the response is already sorted in the DB SQL Query, no need to srot the response body array
+                }   
+                    
+                    //if the get requests has request queries parameters, then cycle through all filters and get properties with x bedrooms (accepts more than one filter)
+                    Promise.all(req.query.filters.map(filter => {   //once again map was used, in order to use the promise functionality, for each and for loops won't work
+                        return new Promise(resolve => {
+                            if(isNaN(parseInt(filter))){    //Check if any of the filter is a non numeric value and if it is return bad request error message
+                                conn.end();
+                                return res.status(400).json({message:"Your filter is not a number. You can only filter by number of bedrooms"})
+                            }
+                            Promise.all(this.properties.map(property => { 
+                                return new Promise(resolve => { //For each filter value, map the properties array and push the properties with filtered number of bedrooms
+                                    if(parseInt(filter)==5){    //To simulate and use the same logic as Uniplaces webapp, this rule is for +4 bedroom properties
+                                        if(countBedrooms(property.units,"bedroom") > parseInt(filter)){
+                                            this.filteredProperties.push(property)  //get 5+ bedrooms houses and then get the 5 bedrooms houses on the next if 
+                                        }
+                                    }
+                                    if(countBedrooms(property.units,"bedroom") == parseInt(filter)){
+                                        this.filteredProperties.push(property)  //get all the properties that match the filtered number of bedrooms
+                                    } 
+                                    resolve(filteredProperties) //resolve promises
+                                })})).then(()=>{ //After all promisses are resolved, continue code execution 
+                                    resolve(filteredProperties) //resolve promises
+                            }).catch(err => {
+                                console.log(err); //in case of error, log the error just for debugging purposes
+                                conn.end();
+                            })
+                        })})).then(()=>{ //After all promisses are resolved, continue code execution 
+                            conn.end();
+                            return res.status(200).json({properties:this.filteredProperties.sort((a,b)=> (a.name > b.name ? 1 : -1))})  //Send the filtered properties, sorted by name
+                        }).catch(err => {
+                            console.log(err); //in case of error, log the error just for debugging purposes
+                            conn.end();
+                        })
+                })
+        }).catch(err => {
+            console.log(err); //in case of error, log the error just for debugging purposes
+            conn.end();
+        })
+    }).catch(err =>{  //Catch block to detect and catch DB connection issues
+        conn.end();
+        return res.status(500).json({
+        message: "Couldn't connect to the Database!",
+    })})
 }

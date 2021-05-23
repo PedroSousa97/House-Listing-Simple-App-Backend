@@ -5,6 +5,7 @@ const routes = (app)=>{
     app.route('/properties')
       .post(controller.createProperty) //Create Property logic is on the controller
       .delete(controller.deleteProperty) //Delete Property logic is on the controller
+      .get(controller.getProperties) //Get properties logic is on the controller
 }
 
 module.exports = routes;
