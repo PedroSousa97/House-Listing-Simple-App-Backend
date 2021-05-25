@@ -41,7 +41,7 @@ This message was also designed in a way that in the front-end code there is almo
 
 In this Repository you can also find a folder called DataBase, and there you find the SQL file that you can use to reproduce the DB I created, including the Unit naming lookup table.
 
-![Image description](https://github.com/PedroSousa97/https://github.com/PedroSousa97/Technical-Challenge-Backend-NodeJS/blob/main/Database/DBDiagram.PNG)
+![Image description](https://github.com/PedroSousa97/Technical-Challenge-Backend-NodeJS/blob/master/Database/DBDiagram.PNG)
 
 ## Delivery Date
 
