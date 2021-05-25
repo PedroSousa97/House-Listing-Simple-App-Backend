@@ -41,9 +41,11 @@ exports.createProperty = function(req,res){
                 conn.end();                         
                 return res.status(400).json({message:"The chosen property name is already in use"})
             }
-        }).catch(err => {
-            console.log(err); //in case of error, log the error just for debugging purposes
+        }).catch(err => { //Catch block to detect error with the DB query
             conn.end();
+            return res.status(500).json({
+            message: "Sorry, found an issue with the query. Keep in mind that ' char won't be accepted",
+            })
         })
         //In this case instead of a for cycle, I'll use the map function that returns promisses. A for loop wouldn't work because the code after it would execute first
         Promise.all(propertyUnits.map(Unit => {
@@ -52,9 +54,11 @@ exports.createProperty = function(req,res){
                 .then((rows) => {
                     UnitValidator = UnitValidator + parseInt(rows[0].matches) //If the name matches one of the lookup table, add +1 to the validator
                     resolve(UnitValidator) //Add the updated value to the resolve array
-                }).catch(err => {
-                    console.log(err); //in case of error, log the error just for debugging purposes
+                }).catch(err => { //Catch block to detect error with the DB query
                     conn.end();
+                    return res.status(500).json({
+                    message: "Sorry, found an issue with the query. Keep in mind that ' char won't be accepted",
+                    })
                 })
             })})).then(UnitValidator=>{ //After all promisses are resolved, continue code execution 
                 //If all names were allowed, then the last value of the array should be equal to the propertyunits array length
@@ -73,10 +77,17 @@ exports.createProperty = function(req,res){
                     }
                     conn.end();
                     return res.status(201).json({message:"Property created successfully"}) //At this point, property should be created, Created status message is sent
-                }).catch(err => {
-                    console.log(err); //in case of error, log the error just for debugging purposes
+                }).catch(err => { //Catch block to detect error with the DB query
                     conn.end();
+                    return res.status(500).json({
+                    message: "Sorry, found an issue with the query. Keep in mind that ' char won't be accepted",
+                    })
                   })
+            }).catch(err => { //Catch block to detect problems with the mapping function
+                conn.end();
+                return res.status(500).json({
+                message: "Sorry, we had an internal server error!",
+                })
             })
       }).catch(err =>{  //Catch block to detect and catch DB connection issues
             conn.end();
@@ -122,17 +133,23 @@ exports.deleteProperty = function(req,res){
                     .then((rows) => {
                         conn.end();
                         return res.status(202).json({message:"Property deleted successfully"}) //At this point, property should be deleted, Accepted status message is sent
-                    }).catch(err => {
-                        console.log(err); //in case of error, log the error just for debugging purposes
+                    }).catch(err => { //Catch block to detect error with the DB query
                         conn.end();
+                        return res.status(500).json({
+                        message: "Sorry, found an issue with the query. Keep in mind that ' char won't be accepted",
+                        })
                     })
-                }).catch(err => {
-                    console.log(err); //in case of error, log the error just for debugging purposes
+                }).catch(err => { //Catch block to detect error with the DB query
                     conn.end();
+                    return res.status(500).json({
+                    message: "Sorry, found an issue with the query. Keep in mind that ' char won't be accepted",
+                    })
                 })
-            }).catch(err => {
-                console.log(err); //in case of error, log the error just for debugging purposes
+            }).catch(err => { //Catch block to detect error with the DB query
                 conn.end();
+                return res.status(500).json({
+                message: "Sorry, found an issue with the query. Keep in mind that ' char won't be accepted",
+                })
             })
         }).catch(err =>{  //Catch block to detect and catch DB connection issues
             conn.end();
@@ -166,9 +183,11 @@ exports.getProperties = function(req,res){
                                     units: propertyUnits
                                 }))
                             })
-                    }).catch(err => {
-                        console.log(err); //in case of error, log the error just for debugging purposes
+                    }).catch(err => { //Catch block to detect error with the DB query
                         conn.end();
+                        return res.status(500).json({
+                        message: "Sorry, found an issue with the query. Keep in mind that ' char won't be accepted",
+                        })
                     })
             })})).then(()=>{ //After all promisses are resolved (both maps) continue code execution
                 //if no request querie is passed, meaning the user doesn't want to filter by bedroom number, then send all properties as it is
@@ -196,21 +215,27 @@ exports.getProperties = function(req,res){
                                     resolve(filteredProperties) //resolve promises
                                 })})).then(()=>{ //After all promisses are resolved, continue code execution 
                                     resolve(filteredProperties) //resolve promises
-                            }).catch(err => {
-                                console.log(err); //in case of error, log the error just for debugging purposes
+                            }).catch(err => { //Catch block to detect problems with the mapping function
                                 conn.end();
+                                return res.status(500).json({
+                                message: "Sorry, we had an internal server error!",
+                                })
                             })
                         })})).then(()=>{ //After all promisses are resolved, continue code execution 
                             conn.end();
                             return res.status(200).json({properties:this.filteredProperties.sort((a,b)=> (a.name > b.name ? 1 : -1))})  //Send the filtered properties, sorted by name
-                        }).catch(err => {
-                            console.log(err); //in case of error, log the error just for debugging purposes
+                        }).catch(err => { //Catch Block to detect errors witht the mapping function
                             conn.end();
+                            return res.status(500).json({
+                            message: "Sorry, we had an internal server error!",
+                            })
                         })
                 })
-        }).catch(err => {
-            console.log(err); //in case of error, log the error just for debugging purposes
+        }).catch(err => { //Catch block to detect errors querying the DB
             conn.end();
+            return res.status(500).json({
+            message: "Sorry, found an issue with the query. Keep in mind that ' char won't be accepted",
+            })
         })
     }).catch(err =>{  //Catch block to detect and catch DB connection issues
         conn.end();
