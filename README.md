@@ -31,6 +31,18 @@ Having a UI that sends data to the API, is a good way to control the request par
 
 Regarding the GET endpoint that lists all properties, the filtering was built having into account the way Uniplaces actually filters their properties, meaning that more than one filter can be sent, for example, if an individual wants to filter 2,3 and 4 bedroom properties, the API is prepared to do so.
 
+## Exception Handling
+
+The API was designed in a way that for each possible error it may encounter in the back-end, a message is sent to the client. This messages are all user friendly and inform the user of what may have caused the issue.
+
+This message was also designed in a way that in the front-end code there is almost no need to do exception handling to the received responses, meaning that I simply verify if the received JSON file contains the key named "message" and if it does, then output it. Some of the messages are successful ones too, what changes is the Status Code, and in the front-end I simply use a Sweet Alert to output the request result, whether it is successful or not.
+
+## Database SQL File
+
+In this Repository you can also find a folder called DataBase, and there you find the SQL file that you can use to reproduce the DB I created, including the Unit naming lookup table.
+
+![Image description](https://github.com/PedroSousa97/https://github.com/PedroSousa97/Technical-Challenge-Backend-NodeJS/blob/main/Database/DBDiagram.PNG)
+
 ## Delivery Date
 
 Wednesday (26/05)
