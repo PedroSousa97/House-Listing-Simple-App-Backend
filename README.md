@@ -1,10 +1,10 @@
-# Technical-Challenge-Backend
+# House-Listing-Simple-App-Backend
 
 <p align="center">
     <h3 align="center">Project Overview</h3>
 </p>
 
-This project represents the back-end of the technical challenge app. Has required in the challenge description, front-end and back-end were separated in two different projects.
+This project represents the back-end of the house listing app. Front-end and back-end were separated in two different projects.
 
 I like to separate my back-end into separate folders, according to the js files functionality that those folders contain. In my opinion, it is a good practice, and makes my code a lot easier to understand and the architecture of the back-end becomes a lot more intuitive, instead of nesting everything in a root folder or even worst nesting everything in a single file.
 
@@ -23,13 +23,11 @@ Having that into account, the back-end architecture is divided as follows:
 
 Keep in mind that to make this project more challenging and also to simulate a real case scenario, I will use a SQL DB to store the application data, and the SQL Server will be created locally using HeidiSQL, but you can use any other SQL Server if you wish to test the back-end. I will also attach to this repo, a folder with the .sql file for you to create the DB from scratch on your environment.
 
-I'm going to use SQL because it requires more data processing than NoSQL databases like MongoDB, that already store and return object collections.
-
 ## API Endpoints Considerations
 
 Having a UI that sends data to the API, is a good way to control the request parameters and to make sure they fit the expected values, however, it is a good practice to always validate the received data in the back-end also. Having that in mind, my API was designed and built in a way that all the request parameters are checked and validated before the data is fetched or manipulated, making sure the API only responds if the request parameters or request body are the expected ones.
 
-Regarding the GET endpoint that lists all properties, the filtering was built having into account the way Uniplaces actually filters their properties, meaning that more than one filter can be sent, for example, if an individual wants to filter 2,3 and 4 bedroom properties, the API is prepared to do so.
+Regarding the GET endpoint that lists all properties, more than one filter can be sent, for example, if an individual wants to filter 2,3 and 4 bedroom properties, the API is prepared to do so.
 
 ## Exception Handling
 
@@ -42,10 +40,6 @@ This message was also designed in a way that in the front-end code there is almo
 In this Repository you can also find a folder called DataBase, and there you find the SQL file that you can use to reproduce the DB I created, including the Unit naming lookup table.
 
 ![Image description](https://github.com/PedroSousa97/Technical-Challenge-Backend-NodeJS/blob/master/Database/DBDiagram.PNG)
-
-## Delivery Date
-
-Wednesday (26/05)
 
 ## Author
 
